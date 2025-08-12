@@ -14,7 +14,9 @@ func main() {
 	// push_style()
 	// chain_iter_push()
 	// pull_style()
-	may_raise_panic()
+	// may_raise_panic()
+	tree_ex()
+
 }
 
 func rev_slice() {
@@ -35,6 +37,7 @@ func rev_map() {
 	}
 }
 
+// https://zenn.dev/team_soda/articles/understanding-iterators-in-go
 func push_style() {
 	// sequence
 	seq := func(yield func(int) bool) {
