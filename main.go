@@ -159,3 +159,36 @@ func may_raise_panic() {
 	}
 
 }
+
+// https://go.dev/blog/range-functions#binary-tree
+type Tree[E any] struct {
+	value       E
+	left, right *Tree[E]
+}
+
+func (t Tree[E]) all() iter.Seq[E] {
+	return func(yield func(E) bool) {
+		t.push(yield)
+	}
+}
+func (t *Tree[E]) push(yield func(E) bool) bool {
+	if t == nil {
+		return true
+	}
+	// 左、中央、右の順で実行
+	return t.left.push(yield) &&
+		yield(t.value) &&
+		t.right.push(yield)
+}
+
+func tree_ex() {
+	tree := Tree[string]{"root",
+		&Tree[string]{"left1", nil, nil},
+		&Tree[string]{"right1",
+			&Tree[string]{"r1-l2", nil, nil}, &Tree[string]{"r1-r2", nil, nil}}}
+
+	fmt.Println(tree)
+	for v := range tree.all() {
+		fmt.Println(v)
+	}
+}
