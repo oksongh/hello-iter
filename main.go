@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"iter"
 	"maps"
 	"slices"
 )
@@ -11,7 +12,9 @@ func main() {
 	// rev_slice()
 	// rev_map()
 	// push_style()
-	chain_iter()
+	// chain_iter_push()
+	// pull_style()
+	may_raise_panic()
 }
 
 func rev_slice() {
@@ -33,7 +36,7 @@ func rev_map() {
 }
 
 func push_style() {
-	// sequense
+	// sequence
 	seq := func(yield func(int) bool) {
 		yield(1)
 		fmt.Println("after yeild(1)")
@@ -55,7 +58,7 @@ func push_style() {
 
 }
 
-func chain_iter() {
+func chain_iter_push() {
 	// 0..=9のintを返すイテレータを返す関数
 	// numbers := func() func(func(int) bool) {
 	// 	return func(yeild func(int) bool) {
@@ -72,7 +75,7 @@ func chain_iter() {
 		}
 	}
 	// seq -> seq
-	even := func(seq func(func(int) bool)) func(func(int) bool) {
+	even := func(seq iter.Seq[int]) iter.Seq[int] {
 		return func(yield func(int) bool) {
 			for i := range seq {
 				if i%2 == 0 {
@@ -89,7 +92,7 @@ func chain_iter() {
 		}
 	}
 
-	double := func(seq func(func(int) bool)) func(func(int) bool) {
+	double := func(seq iter.Seq[int]) iter.Seq[int] {
 		return func(yield func(int) bool) {
 			for i := range seq {
 				yield(i * 2)
@@ -99,4 +102,60 @@ func chain_iter() {
 	for i := range double(even(numbers)) {
 		fmt.Println(i)
 	}
+}
+
+func pull_style() {
+	seq := slices.Values([]int{1, 2, 3})
+	next, stop := iter.Pull(seq)
+	defer stop() // 誰？
+	for {
+		i, ok := next()
+		fmt.Println(next)
+		if !ok {
+			fmt.Println("end")
+			break
+		}
+
+		fmt.Println(i)
+	}
+}
+
+func may_raise_panic() {
+	numbers := func(yield func(int) bool) {
+		for i := range 10 {
+			// yieldの戻り値は
+			// true: 続くとき
+			// false: 終了のとき
+
+			// yield(i) // panic!!!
+			if !yield(i) {
+				fmt.Println("!yield!")
+				return
+			}
+		}
+	}
+
+	fmt.Println("break")
+	for i := range numbers {
+		fmt.Println(i)
+		if i == 4 {
+			break
+		}
+	}
+
+	fmt.Println("continue")
+	for i := range numbers {
+		if i%2 == 0 || i == 7 {
+			continue
+		}
+		fmt.Println(i)
+	}
+	fmt.Println("return")
+	for i := range numbers {
+		if i == 4 {
+			return
+		}
+		fmt.Println(i)
+	}
+
 }
